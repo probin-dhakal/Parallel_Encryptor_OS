@@ -2,65 +2,81 @@
 #include <vector>
 #include <string>
 #include <chrono>
-using namespace std;
 
-#include "job_thread.cpp" // includes everything (Encryptor + ThreadPool + JobQueue)
+#include "config.h"
+#include "encryptor.h"
+#include "job_thread.h"
+
+using namespace std;
 
 int main()
 {
+    int mode;
+    cout << "Select mode:\n";
+    cout << "0 → Benchmark mode\n";
+    cout << "1 → Learning mode\n";
+    cout << "Choice: ";
+    cin >> mode;
+
+    verbose = (mode == 1);
+
     string key;
-    cout << "Enter encryption key: ";
+    cout << "\nEnter encryption key: ";
     cin >> key;
 
-    cout << "Enter files to encrypt (space separated, end with #): ";
     vector<string> files;
-    string file;
-    while (cin >> file && file != "#")
-        files.push_back(file);
+    cout << "Enter files (end with #): ";
+    string f;
+    while (cin >> f && f != "#")
+        files.push_back(f);
 
-    if (files.empty())
-    {
-        cerr << "[Error] No files provided. Exiting." << endl;
-        return 1;
-    }
-    // no. of threads equal to no of files
-    int numThreads = files.size();
-
-    // for holding jobs
+    // ---------- PARALLEL ----------
     JobQueue queue;
+    ThreadPool pool(files.size(), queue, key);
 
-    // created a thread pool to process jobs
-    ThreadPool pool(numThreads, queue, key);
+    for (auto &x : files)
+        queue.push({x, x + ".enc"});
 
-    // entered jobs into queue -> reference job str in job struct
-    for (auto &f : files)
-        queue.push({f, f + ".enc"});
-
-    // indicate no more jobs will be added
     queue.setFinished();
-    // start timer and processing
-    // chrono for timing -> chrono is used for high resolution clock
-    auto start = chrono::high_resolution_clock::now();
-    // start thread pool
+
+    auto pStart = chrono::high_resolution_clock::now();
     pool.start();
-    // join threads
     pool.join();
-    // stop timer
-    auto end = chrono::high_resolution_clock::now();
+    auto pEnd = chrono::high_resolution_clock::now();
 
-    // display duration
-    double duration = chrono::duration<double>(end - start).count();
-    cout << "✅ Encryption done in " << duration << " seconds!" << endl;
+    double parallelTime =
+        chrono::duration<double>(pEnd - pStart).count();
 
-    cout << "\n=== Decryption Stage ===" << endl;
-    Encryptor decryptor(key);
-    for (auto &f : files)
-    {
-        string encFile = f + ".enc";
-        string decFile = f + ".dec";
-        decryptor.decryptFile(encFile, decFile);
-    }
+    cout << "\nParallel encryption time: "
+         << parallelTime << " seconds\n";
 
-    cout << "\n✅ Decryption Complete. Files restored." << endl;
-    return 0;
+    // ---------- DECRYPT ----------
+    Encryptor dec(key);
+    for (auto &x : files)
+        dec.decryptFile(x + ".enc", x + ".dec");
+
+    // ---------- SEQUENTIAL ----------
+    auto sStart = chrono::high_resolution_clock::now();
+    Encryptor seqEnc(key);
+
+    for (auto &x : files)
+        seqEnc.encryptFile(x, x + ".seq.enc");
+
+    auto sEnd = chrono::high_resolution_clock::now();
+
+    double sequentialTime =
+        chrono::duration<double>(sEnd - sStart).count();
+
+    cout << "\nSequential encryption time: "
+         << sequentialTime << " seconds\n";
+
+    // ---------- COMPARISON ----------
+    cout << "\n========================================\n";
+    cout << " PERFORMANCE COMPARISON\n";
+    cout << "========================================\n";
+    cout << "Sequential : " << sequentialTime << " s\n";
+    cout << "Parallel   : " << parallelTime << " s\n";
+    cout << "Speedup    : "
+         << sequentialTime / parallelTime << "x\n";
+    cout << "========================================\n";
 }
