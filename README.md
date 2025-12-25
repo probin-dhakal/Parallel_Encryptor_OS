@@ -61,9 +61,10 @@
     └── build/             # Build output
 
 ## ⚙️ Build Instructions
+```
   1️⃣ Clone the Repository
-    git clone https://github.com/<your-username>/parallel_encryptor.git
-    cd parallel_encryptor_os
+                git clone https://github.com/<your-username>/parallel_encryptor.git
+                cd parallel_encryptor_os
 
   2️⃣ Configure & Build
     mkdir build
@@ -76,7 +77,7 @@
 
   # 🚀 Usage
      ./main
-
+```
 ### 📊 Performance Benchmarking
  🔹 Small Files (Few KBs) -> Parallelism overhead dominates computation
    <img width="1160" height="499" alt="Screenshot 2025-12-25 145033" src="https://github.com/user-attachments/assets/d527728d-0bea-4266-a554-821e4c95e655" />
