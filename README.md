@@ -2,12 +2,23 @@
 
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](#)
 [![Build With CMake](https://img.shields.io/badge/Build-CMake-informational.svg)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![OS Compatible](https://img.shields.io/badge/OS-Linux%20%7C%20Windows%20%7C%20Mac-black.svg)](#)
 
-A **high-performance parallel file encryption and decryption system** built using **modern C++17**, multithreading, job queue scheduling, and synchronized worker threads.
 
-This project demonstrates concepts used in **Operating Systems**, **Concurrency**, and **Systems Programming**.
+# 📌 Overview
+  This project is a parallel file encryption and decryption system implemented in modern C++17, designed to apply operating system and concurrency concepts in practice.
+  
+  The system encrypts and decrypts multiple files concurrently using:
+  
+  A custom thread pool
+  
+  A thread-safe job queue
+  
+  Mutexes and condition variables
+  
+  Accurate performance benchmarking against a sequential baseline
+  
+  The project evolved iteratively by identifying real concurrency problems (output interleaving, synchronization overhead) and addressing them with measured, engineering-driven solutions.
 
 ---
 
