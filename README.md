@@ -89,12 +89,9 @@
             Parallel speedup ≈ 1.03×
             
             Nearly identical to sequential due to:
-            
-            Thread creation cost
-            
-            Scheduling overhead
-            
-            Minimal CPU work per file
+                Thread creation cost
+                Scheduling overhead
+                Minimal CPU work per file
 
 
   🔹 Large Files (~300,000 lines)
@@ -109,12 +106,9 @@
             Speedup: ~2.07×
             
             Why this matters
-            
-            Encryption becomes CPU-bound
-            
-            Thread overhead is amortized
-            
-            Parallelism meaningfully improves throughput
+                Encryption becomes CPU-bound
+                Thread overhead is amortized
+                Parallelism meaningfully improves throughput
 
 ---
 # 🧠 Why Two Modes Exist (Important Design Decision)
@@ -127,45 +121,33 @@
       ✅ First Fix
       
           Introduced std::mutex for synchronized logging
-      
           Output became correct
       
       ⚠️ New Issue
       
           Mutex contention severely reduced performance
-      
           Benchmark results became misleading
       
       🧩 Final Solution
       
          Introduced two explicit modes:
-      
          Learning Mode → correctness & visibility
-      
          Benchmark Mode → performance accuracy
 
 # 🧠 Concepts Demonstrated
 
       Thread pools vs task spawning
-      
       Producer–consumer queues
-      
       Condition-variable signaling
-      
       Mutex contention costs
-      
       I/O vs CPU-bound workloads
-      
       Accurate benchmarking methodology
-      
       Scalability limits of parallelism
 
 # 🔐 Encryption Notes
 
     Uses XOR for educational clarity
-    
     Easily replaceable with AES / ChaCha20
-    
     Design intentionally keeps crypto logic isolated from threading logic
 
 # 👤 Author
@@ -177,14 +159,11 @@
 
     This project is not just about encryption — it demonstrates:
     
-    How concurrency problems emerge
-    
-    How performance tradeoffs are discovered
-    
-    How systems are iteratively improved
-    
-    How benchmarks must be interpreted correctly
-    
+        How concurrency problems emerge
+        How performance tradeoffs are discovered
+        How systems are iteratively improved
+        How benchmarks must be interpreted correctly
+        
     If you’re evaluating systems thinking, OS fundamentals, or engineering maturity, this project tells that story clearly.
 
-#⭐ Star the repository if it helped you learn or prepare for interviews.
+# ⭐ Star the repository if it helped you learn or prepare for interviews.
