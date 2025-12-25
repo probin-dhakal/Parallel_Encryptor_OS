@@ -24,93 +24,167 @@
 
 ## ✨ Features
 
-| Feature | Description |
-|--------|-------------|
-| ✅ Parallel Encryption | Encrypts multiple files simultaneously using worker threads |
-| 🔄 Thread-Safe Scheduling | Uses a synchronized job queue with mutex + condition variables |
-| 🔑 Educational Cipher | Simple XOR logic for clarity and extendability |
-| 📊 Performance Measurement | Displays accurate execution time |
-| 🧱 Modular Architecture | Plug-and-play replacement for AES, ChaCha20, etc. |
+    | Feature                   | Description                                                     |
+    | ------------------------- | --------------------------------------------------------------- |
+    | ⚡ Parallel Encryption     | Encrypts multiple files concurrently using worker threads       |
+    | 🔄 Thread-Safe Scheduling | JobQueue implemented using mutex + condition variables          |
+    | 🔐 Reversible Cipher      | XOR-based encryption for clarity and correctness                |
+    | 📊 Benchmark Mode         | Measures clean parallel vs sequential performance               |
+    | 🎓 Learning Mode          | Verbose, synchronized logging for understanding concurrency     |
+    | 🧠 OS Concepts            | Demonstrates scheduling, synchronization, contention, I/O costs |
 
----
+# 🧱 Architecture at a Glance
+    main.cpp
+     ├── Parses input & mode selection
+     ├── Schedules jobs
+     ├── Measures performance
+     │
+     ├── JobQueue
+     │    ├── Thread-safe FIFO queue
+     │    ├── Condition-variable based blocking
+     │
+     ├── ThreadPool
+     │    ├── Fixed worker threads
+     │    ├── Independent Encryptor per thread
+     │
+     └── Encryptor
+          ├── Binary file I/O
+          ├── XOR transformation
+          └── Deterministic encryption/decryption
 
 ## 📁 Project Structure
-
-parallel_encryptor/
-│
-├── main.cpp
-├── encryptor.cpp
-├── job_thread.cpp
-├── CMakeLists.txt
-│
-└── (input files: a.txt, b.txt, etc.)
-
-
----
+    parallel_encryptor_os/
+    │
+    ├── main.cpp          # Program entry point & benchmarking logic
+    ├── encryptor.h/.cpp  # Encryption & decryption logic
+    ├── job_thread.h/.cpp # Thread pool and job queue
+    ├── config.h/.cpp     # Global configuration (verbose mode)
+    ├── CMakeLists.txt
+    │
+    └── build/             # Build output
 
 ## ⚙️ Build Instructions
+  1️⃣ Clone the Repository
+    git clone https://github.com/<your-username>/parallel_encryptor.git
+    cd parallel_encryptor_os
 
-### 1) Clone the Repository
-```bash
-git clone https://github.com/<your-username>/parallel_encryptor.git
-cd parallel_encryptor
+  2️⃣ Configure & Build
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build .
+  This produces: 
+    main.exe   (Windows)
+  ./main     (Linux/macOS)
 
-2) Create and Enter Build Directory
-  mkdir build && cd build
-3) Configure and Build
-  cmake ..
-  cmake --build .
-  This produces an executable named: ./main
+  # 🚀 Usage
+     ./main
 
+### 📊 Performance Benchmarking
+ 🔹 Small Files (Few KBs) -> Parallelism overhead dominates computation
+   <img width="1160" height="499" alt="Screenshot 2025-12-25 145033" src="https://github.com/user-attachments/assets/d527728d-0bea-4266-a554-821e4c95e655" />
 
-🚀 Usage
+  Observed Result
 
-Place the input files (a.txt, b.txt, etc.) in the build directory, then run:
-  ./main
-
-Example Interaction
-
-Enter encryption key: secret
-Enter files to encrypt (space separated, end with #): a.txt b.txt #
-[Thread 1] Encrypting a.txt -> a.txt.enc
-[Thread 2] Encrypting b.txt -> b.txt.enc
-✅ Encryption done in 0.041 seconds!
-
-=== Decryption Stage ===
-[Decrypted Data from a.txt.enc]: hey dude how are you
-[Decrypted Data from b.txt.enc]: i am fine thank you
-
-✅ Decryption Complete. Files restored.
-Encrypted files are saved as:
-  filename.txt.enc
-Decrypted files are saved as:
-  filename.txt.dec
+            Parallel speedup ≈ 1.03×
+            
+            Nearly identical to sequential due to:
+            
+            Thread creation cost
+            
+            Scheduling overhead
+            
+            Minimal CPU work per file
 
 
-🧠 How It Works
+  🔹 Large Files (~300,000 lines)
+   <img width="1017" height="565" alt="Screenshot 2025-12-25 151222" src="https://github.com/user-attachments/assets/c8aba4ce-eda8-41bf-872b-270725acac26" />
 
-| Component    | Responsibility                                        |
-| ------------ | ----------------------------------------------------- |
-| `Encryptor`  | Reads/writes files, applies XOR encryption/decryption |
-| `JobQueue`   | Thread-safe FIFO queue for task dispatch              |
-| `ThreadPool` | Launches worker threads that process encryption jobs  |
-| `main.cpp`   | Collects input, schedules tasks, measures performance |
+   Observed Result
 
-Worker count = number of input files → maximized parallel throughput.
+            Sequential: 13.89 seconds
+            
+            Parallel: 6.70 seconds
+            
+            Speedup: ~2.07×
+            
+            Why this matters
+            
+            Encryption becomes CPU-bound
+            
+            Thread overhead is amortized
+            
+            Parallelism meaningfully improves throughput
 
-.
+---
+# 🧠 Why Two Modes Exist (Important Design Decision)
+  ❌ Initial Problem
 
-📜 License
+      Parallel encryption with logging caused:
+          Interleaved output
+          Unreadable encrypted data
+      
+      ✅ First Fix
+      
+          Introduced std::mutex for synchronized logging
+      
+          Output became correct
+      
+      ⚠️ New Issue
+      
+          Mutex contention severely reduced performance
+      
+          Benchmark results became misleading
+      
+      🧩 Final Solution
+      
+         Introduced two explicit modes:
+      
+         Learning Mode → correctness & visibility
+      
+         Benchmark Mode → performance accuracy
 
-  This project is licensed under the MIT License.
-  You may freely use, modify, and distribute it for learning or personal use.
+# 🧠 Concepts Demonstrated
 
-👤 Author
+      Thread pools vs task spawning
+      
+      Producer–consumer queues
+      
+      Condition-variable signaling
+      
+      Mutex contention costs
+      
+      I/O vs CPU-bound workloads
+      
+      Accurate benchmarking methodology
+      
+      Scalability limits of parallelism
 
-  Probin Dhakal
-  📧 Email: probindhakal5@gmail.com
+# 🔐 Encryption Notes
 
-⭐ Support the Project
+    Uses XOR for educational clarity
+    
+    Easily replaceable with AES / ChaCha20
+    
+    Design intentionally keeps crypto logic isolated from threading logic
 
-If this helped you in your OS or Systems Programming coursework:
-⭐ Star the repository to support development!
+# 👤 Author
+
+    Probin Dhakal
+    📧 probindhakal5@gmail.com
+
+# ⭐ Why This Project Matters
+
+    This project is not just about encryption — it demonstrates:
+    
+    How concurrency problems emerge
+    
+    How performance tradeoffs are discovered
+    
+    How systems are iteratively improved
+    
+    How benchmarks must be interpreted correctly
+    
+    If you’re evaluating systems thinking, OS fundamentals, or engineering maturity, this project tells that story clearly.
+
+#⭐ Star the repository if it helped you learn or prepare for interviews.
