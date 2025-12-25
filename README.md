@@ -10,13 +10,10 @@
   
   The system encrypts and decrypts multiple files concurrently using:
   
-  A custom thread pool
-  
-  A thread-safe job queue
-  
-  Mutexes and condition variables
-  
-  Accurate performance benchmarking against a sequential baseline
+      A custom thread pool
+      A thread-safe job queue
+      Mutexes and condition variables
+      Accurate performance benchmarking against a sequential baseline
   
   The project evolved iteratively by identifying real concurrency problems (output interleaving, synchronization overhead) and addressing them with measured, engineering-driven solutions.
 
