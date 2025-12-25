@@ -63,19 +63,19 @@
 ## ⚙️ Build Instructions
 ```
   1️⃣ Clone the Repository
-                git clone https://github.com/<your-username>/parallel_encryptor.git
-                cd parallel_encryptor_os
+        git clone https://github.com/<your-username>/parallel_encryptor.git
+        cd parallel_encryptor_os
 
   2️⃣ Configure & Build
-    mkdir build
-    cd build
-    cmake ..
-    cmake --build .
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
   This produces: 
-    main.exe   (Windows)
-  ./main     (Linux/macOS)
+        main.exe   (Windows)
+      ./main     (Linux/macOS)
 
-  # 🚀 Usage
+  🚀 Run
      ./main
 ```
 ### 📊 Performance Benchmarking
