@@ -1,66 +1,81 @@
+#include "encryptor.h"
+#include "config.h"
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <string>
-using namespace std;
+#include <mutex>
 
-// ==================================================
-// Encryptor: Handles encryption & decryption
-// ==================================================
-class Encryptor
+extern std::mutex coutMutex;
+
+Encryptor::Encryptor(const std::string &key) : key_(key) {}
+
+void Encryptor::encryptFile(const std::string &inputPath,
+                            const std::string &outputPath)
 {
-public:
-    explicit Encryptor(const string &key) : key_(key) {}
+    std::ifstream input(inputPath, std::ios::binary);
+    std::ofstream output(outputPath, std::ios::binary);
 
-    void encryptFile(const string &inputPath, const string &outputPath)
+    if (!input || !output)
     {
-        ifstream input(inputPath, ios::binary);
-        ofstream output(outputPath, ios::binary);
-        if (!input || !output)
+        if (verbose)
         {
-            cerr << "[Error] Cannot open file: " << inputPath << endl;
-            return;
+            std::lock_guard<std::mutex> lock(coutMutex);
+            std::cerr << "[Error] Cannot open file: " << inputPath << "\n";
         }
-
-        char buffer;
-        size_t index = 0;
-        cout << "[Encrypted Data for " << inputPath << "]: ";
-
-        while (input.get(buffer))
-        {
-            char enc = transformChar(buffer, index++);
-            output.put(enc);
-            cout << hex << setw(2) << setfill('0') << (int)(unsigned char)enc << " ";
-        }
-        cout << dec << endl;
+        return;
     }
 
-    void decryptFile(const string &inputPath, const string &outputPath)
-    {
-        ifstream input(inputPath, ios::binary);
-        ofstream output(outputPath, ios::binary);
-        if (!input || !output)
-        {
-            cerr << "[Error] Cannot open encrypted file: " << inputPath << endl;
-            return;
-        }
+    char ch;
+    size_t index = 0;
 
-        char buffer;
-        size_t index = 0;
-        cout << "[Decrypted Data from " << inputPath << "]: ";
-        while (input.get(buffer))
-        {
-            char dec = transformChar(buffer, index++);
-            output.put(dec);
-            cout << dec;
-        }
-        cout << endl;
+    if (verbose)
+    {
+        std::lock_guard<std::mutex> lock(coutMutex);
+        std::cout << "[Encrypted Hex for " << inputPath << "]: ";
     }
 
-private:
-    string key_;
-    char transformChar(char c, size_t index)
+    while (input.get(ch))
     {
-        return c ^ key_[index % key_.size()];
+        char enc = transformChar(ch, index++);
+        output.put(enc);
+
+        if (verbose)
+        {
+            std::lock_guard<std::mutex> lock(coutMutex);
+            std::cout << std::hex << std::setw(2)
+                      << std::setfill('0')
+                      << (int)(unsigned char)enc << " ";
+        }
     }
-};
+
+    if (verbose)
+    {
+        std::lock_guard<std::mutex> lock(coutMutex);
+        std::cout << std::dec << "\n";
+    }
+}
+
+void Encryptor::decryptFile(const std::string &inputPath,
+                            const std::string &outputPath)
+{
+    std::ifstream input(inputPath, std::ios::binary);
+    std::ofstream output(outputPath, std::ios::binary);
+
+    if (!input || !output)
+        return;
+
+    char ch;
+    size_t index = 0;
+
+    while (input.get(ch))
+    {
+        char dec = transformChar(ch, index++);
+        output.put(dec);
+    }
+}
+
+char Encryptor::transformChar(char c, size_t index)
+{
+    return c ^ key_[index % key_.size()];
+}
